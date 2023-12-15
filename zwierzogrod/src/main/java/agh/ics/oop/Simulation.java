@@ -30,10 +30,11 @@ public class Simulation implements Runnable {
     }
     @Override
     public void run() {
-        for(int i=0; i<directions.size(); i++) {
-            int animalIndex = i % animals.size(), moveIndex = i % directions.size();
-            Animal animal = animals.get(animalIndex);
-            map.move(animal, directions.get(moveIndex));
+        //trzeba bedzie dodac obsluge jedzenia
+        while(true){
+            for(Animal animal: animals){
+                map.move(animal, null);
+            }
             try {
                 Thread.sleep(SIMULATION_INTERVAL);
             } catch (InterruptedException e) {
