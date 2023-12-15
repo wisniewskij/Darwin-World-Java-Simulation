@@ -1,9 +1,9 @@
 package agh.ics.oop.model.util.directions;
 
 public enum MapDirection {
-    NORTH, EAST, SOUTH, WEST;
+    NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST;
     public String toString() {
-        String[] directions = { "Północ", "Wschód", "Południe",  "Zachód" };
+        String[] directions = { "Północ", "Północny wschód" ,"Wschód", "Południowy wschód", "Południe", "Południowy zachód", "Zachód", "Północny Zachód" };
         return directions[this.ordinal()];
     }
     public MapDirection next() {
@@ -15,7 +15,12 @@ public enum MapDirection {
         return values[(this.ordinal()-1+values.length)%values.length];
     }
     public Vector2d toUnitVector() {
-        Vector2d[] vectors = { new Vector2d(0, 1), new Vector2d(1, 0), new Vector2d(0, -1), new Vector2d(-1, 0) };
+        Vector2d[] vectors = {
+                new Vector2d(0, 1), new Vector2d(1, 1),
+                new Vector2d(1, 0), new Vector2d(1, -1),
+                new Vector2d(0, -1), new Vector2d(-1, -1),
+                new Vector2d(-1, 0), new Vector2d(-1, 1),
+        };
         return vectors[this.ordinal()];
     }
 }
