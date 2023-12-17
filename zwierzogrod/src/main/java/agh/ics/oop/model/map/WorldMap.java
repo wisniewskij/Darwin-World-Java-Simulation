@@ -1,7 +1,6 @@
 package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.util.Boundary;
-import agh.ics.oop.model.util.directions.MoveDirection;
 import agh.ics.oop.model.util.MoveValidator;
 import agh.ics.oop.model.util.directions.Vector2d;
 import agh.ics.oop.model.WorldElement;
@@ -15,6 +14,11 @@ import java.util.UUID;
  * @author apohllo, idzik
  */
 public interface WorldMap extends MoveValidator {
+    /**
+     * Notifies ovservers about map change.
+     * @param message message indicating what changed.
+     */
+    public void mapChanged(String message);
     /**
      * Increment map's update counter
      */
@@ -37,7 +41,7 @@ public interface WorldMap extends MoveValidator {
      * Moves an object (if it is present on the map) according to specified direction.
      * If the move is not possible, this method has no effect.
      */
-    void move(WorldElement object, MoveDirection direction);
+    void move(WorldElement object);
 
     /**
      * Return true if given position on the map is occupied. Should not be

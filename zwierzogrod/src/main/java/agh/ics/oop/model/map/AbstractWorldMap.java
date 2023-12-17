@@ -3,7 +3,6 @@ package agh.ics.oop.model.map;
 import agh.ics.oop.model.*;
 import agh.ics.oop.model.util.MapVisualizer;
 import agh.ics.oop.model.util.Boundary;
-import agh.ics.oop.model.util.directions.MoveDirection;
 import agh.ics.oop.model.util.directions.Vector2d;
 import agh.ics.oop.model.util.exceptions.PositionAlreadyOccupiedException;
 
@@ -38,7 +37,7 @@ abstract public class AbstractWorldMap implements WorldMap {
     public void unregisterObserver(MapChangeListener listener) {
         observers.remove(listener);
     }
-    void mapChanged(String message) {
+    public void mapChanged(String message) {
         for (MapChangeListener listener : observers)
                 listener.mapChanged(this, message);
     }
@@ -57,9 +56,9 @@ abstract public class AbstractWorldMap implements WorldMap {
         return objectAt(position) != null;
     }
 
-    public void move(WorldElement animal, MoveDirection direction) {
+    public void move(WorldElement animal) {
         Vector2d oldPosition = animal.getPosition();
-        if (animal.move(direction, this)) {
+        if (animal.move(this)) {
             animals.remove(oldPosition);
             animals.put(animal.getPosition(), animal);
             mapChanged("%s -> %s".formatted(oldPosition, animal.getPosition()));
@@ -71,9 +70,8 @@ abstract public class AbstractWorldMap implements WorldMap {
         animals.put(animal.getPosition(), animal);
         mapChanged("new at %s".formatted(animalPos));
     }
-    public boolean canMoveTo(Vector2d position) {
-        return !isOccupied(position) || objectAt(position) instanceof Grass;
-    }
+
+
 
     @Override
     public List<WorldElement> getElements() {

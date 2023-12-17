@@ -6,23 +6,15 @@ import agh.ics.oop.model.map.GrassField;
 import agh.ics.oop.model.map.MapChangeListener;
 import agh.ics.oop.model.map.WorldMap;
 import agh.ics.oop.model.util.Boundary;
-import agh.ics.oop.model.util.OptionsParser;
-import agh.ics.oop.model.util.directions.MoveDirection;
 import agh.ics.oop.model.util.directions.Vector2d;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
-import javafx.geometry.VPos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.text.TextAlignment;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class WindowPresenter implements MapChangeListener {
@@ -112,9 +104,8 @@ public class WindowPresenter implements MapChangeListener {
         GrassField grassField = new GrassField(10);
         setWorldMap(grassField);
         grassField.registerObserver(this);
-        List<MoveDirection> directions = OptionsParser.stringToMoveDirectionEnum(args == null || args.trim().isEmpty() ? new String[0] : args.split(" "));
-        List<Vector2d> positions = List.of(new Vector2d(2,2), new Vector2d(1,1));
-        Simulation simulation = new Simulation(directions, positions, worldMap);
+        List<Vector2d> positions = List.of(new Vector2d(2,2));
+        Simulation simulation = new Simulation(positions, worldMap);
         SimulationEngine simulationEngine = new SimulationEngine(List.of(simulation));
         try {
             simulationEngine.runAsync();

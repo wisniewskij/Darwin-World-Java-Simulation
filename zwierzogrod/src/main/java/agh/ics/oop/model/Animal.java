@@ -1,21 +1,31 @@
 package agh.ics.oop.model;
-
-
 import agh.ics.oop.model.util.MoveValidator;
 import agh.ics.oop.model.util.directions.MapDirection;
-import agh.ics.oop.model.util.directions.MoveDirection;
 import agh.ics.oop.model.util.directions.Vector2d;
 
+import static java.lang.Math.min;
+
 public class Animal implements WorldElement {
+    private static int GENOME_LENGTH = 10;
+    private static int MAX_ENERGY = 10;
     private MapDirection animalDirection;
     private Vector2d animalPosition;
-    public Animal(Vector2d position) {
+    private int animalEnergy;
+    private final AnimalGenome animalGenome;
+    public Animal(Vector2d position, int energy, AnimalGenome animalGenome) {
         animalPosition = position;
-        animalDirection = MapDirection.NORTH;
+        animalDirection = MapDirection.getRandomDirection();
+        animalEnergy = energy;
+        this.animalGenome = animalGenome;
     }
     public Animal() {
-        this(new Vector2d(2, 2));
+        this(new Vector2d(2, 2), 10, new AnimalGenome(GENOME_LENGTH));
     }
+
+    public void addEnergy( int energy ) {
+        animalEnergy = min(MAX_ENERGY, animalEnergy + energy);
+    }
+
     public MapDirection getDirection() {
         return animalDirection;
     }
@@ -23,26 +33,32 @@ public class Animal implements WorldElement {
     public Vector2d getPosition() {
         return animalPosition;
     }
-    public String toString() {
-        String[] dirs = {"N", "E", "S", "W"};
-        return dirs[animalDirection.ordinal()];
+
+    public AnimalGenome getGenome() {
+        return animalGenome;
     }
+
+    public int getEnergy() {
+        return animalEnergy;
+    }
+
+    public String toString() {
+        return "%s %d".formatted(animalDirection.toArrow(), animalEnergy);
+    }
+
     public boolean isAt(Vector2d position) {
         return animalPosition.equals(position);
     }
-    public boolean move(MoveDirection direction, MoveValidator moveValidator) {
-        switch (direction) {
-            case RIGHT -> animalDirection = animalDirection.next();
-            case LEFT -> animalDirection = animalDirection.previous();
-            case FORWARD, BACKWARD -> {
-                Vector2d nextAnimalPosition = direction == MoveDirection.FORWARD ? animalPosition.add(animalDirection.toUnitVector()) : animalPosition.subtract(animalDirection.toUnitVector());
-                if(moveValidator.canMoveTo(nextAnimalPosition)) {
-                    animalPosition = nextAnimalPosition;
-                    return true;
-                }
-            }
+    public boolean move(MoveValidator moveValidator) {
+        animalEnergy--;
+        animalDirection = animalGenome.nextDirection(animalDirection);
+        Vector2d nextAnimalPosition = animalPosition.add(animalDirection.toUnitVector());
+        if(moveValidator.canMoveTo(nextAnimalPosition)) {
+            animalPosition = nextAnimalPosition;
+            return true;
+        } else {
+            animalDirection = animalDirection.flip();
         }
         return false;
     }
-
 }

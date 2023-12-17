@@ -1,70 +1,19 @@
 package agh.ics.oop;
 
-import agh.ics.oop.model.map.GrassField;
-import agh.ics.oop.model.map.RectangularMap;
-import agh.ics.oop.model.util.ConsoleMapDisplay;
-import agh.ics.oop.model.util.OptionsParser;
-import agh.ics.oop.model.util.directions.MoveDirection;
+import agh.ics.oop.model.Animal;
+import agh.ics.oop.model.AnimalGenome;
 import agh.ics.oop.model.util.directions.Vector2d;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 public class World {
-    static void run(List<MoveDirection> args) {
-        for(MoveDirection arg: args){
-            switch (arg){
-                case FORWARD:
-                    System. out. println("Zwierzak idzie do przodu");
-                    break;
-                case BACKWARD:
-                    System. out. println("Zwierzak idzie do tylu");
-                    break;
-                case RIGHT:
-                    System. out. println("Zwierzak skreca w prawo");
-                    break;
-                case LEFT:
-                    System. out. println("Zwierzak skreca w lewo");
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
+//    tested genoms generation
     public static void main(String[] args) {
-//        System. out. println("System wystartowal");
-//        run(OptionsParser.stringToMoveDirectionEnum(args));
+        AnimalGenome animalGenome1 = new AnimalGenome(new int[]{1,1,1,1});
+        AnimalGenome animalGenome2 = new AnimalGenome(new int[]{2,2,2,2});
+        Animal animal1 = new Animal(new Vector2d(2, 2), 24, animalGenome1);
+        Animal animal2 = new Animal(new Vector2d(2, 2), 76, animalGenome2);
 
-        List<MoveDirection> directions = OptionsParser.stringToMoveDirectionEnum(args);
-        List<Vector2d> positions = List.of(new Vector2d(2,2), new Vector2d(3,4), new Vector2d(3,4), new Vector2d(3,3));
-
-        List<Simulation> simulations = new ArrayList<>();
-
-        ConsoleMapDisplay consoleMapDisplay = new ConsoleMapDisplay();
-
-        for(int i=0;i<3;i++) {
-            GrassField grassField = new GrassField(10);
-            grassField.registerObserver(consoleMapDisplay);
-            RectangularMap rectangularMap = new RectangularMap(10, 10);
-            rectangularMap.registerObserver(consoleMapDisplay);
-            simulations.add(new Simulation(directions, positions, grassField));
-            simulations.add(new Simulation(directions, positions, rectangularMap));
-        }
-
-        SimulationEngine simEngine = new SimulationEngine(simulations);
-
-        long start = System.currentTimeMillis();
-        try {
-            simEngine.runAsync();
-//            simEngine.runAsyncInThreadPool();
-            simEngine.awaitSimulationsEnd();
-        } catch (InterruptedException e) {
-            System. out. println("system wykrzaczyl");
-        }
-        long finish = System.currentTimeMillis();
-        long timeElapsed = finish - start;
-
-        System. out. println("system zakonczyl dzialanie " + timeElapsed);
+        System.out.println(Arrays.toString(AnimalGenome.newAnimalGenomeFromReproduction(animal1, animal2, 4, 0, 1).genome));
     }
 }

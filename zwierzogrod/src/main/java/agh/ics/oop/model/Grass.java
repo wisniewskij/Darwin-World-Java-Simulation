@@ -1,7 +1,6 @@
 package agh.ics.oop.model;
 
 import agh.ics.oop.model.util.MoveValidator;
-import agh.ics.oop.model.util.directions.MoveDirection;
 import agh.ics.oop.model.util.directions.Vector2d;
 
 public class Grass implements WorldElement {
@@ -22,7 +21,7 @@ public class Grass implements WorldElement {
     }
 
     @Override
-    public boolean move(MoveDirection direction, MoveValidator validator) {
+    public boolean move(MoveValidator validator) {
         return false;
     }
 }

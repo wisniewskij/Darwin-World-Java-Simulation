@@ -65,4 +65,9 @@ public class GrassField extends AbstractWorldMap implements WorldMap {
         lista.addAll(grasses.values());
         return lista;
     }
+
+    @Override
+    public boolean canMoveTo(Vector2d position) {
+        return true;
+    }
 }
