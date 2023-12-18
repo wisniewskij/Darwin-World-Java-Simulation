@@ -36,7 +36,7 @@ public class AnimalGenome {
     }
 
     public MapDirection nextDirection(MapDirection currentDirection){
-        if (random.nextInt(10) == 0) {
+        if (MUTATIONS_ENABLED && random.nextInt(5) == 0) {
             currentGenIndex = random.nextInt(genome.length);
         } else {
             currentGenIndex = (currentGenIndex + 1) % genome.length;
