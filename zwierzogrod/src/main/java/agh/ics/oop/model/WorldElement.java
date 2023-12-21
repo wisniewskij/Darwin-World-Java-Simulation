@@ -1,5 +1,6 @@
 package agh.ics.oop.model;
 
+import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MoveValidator;
 import agh.ics.oop.model.util.directions.Vector2d;
 
@@ -22,6 +23,6 @@ public interface WorldElement {
      * Move an object.
      * @return Boolean telling if object moved.
      */
-    boolean move(MoveValidator validator);
+    boolean move(MoveValidator validator, Boundary currentBoundary);
 
 }

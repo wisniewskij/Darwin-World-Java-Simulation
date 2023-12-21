@@ -1,4 +1,5 @@
 package agh.ics.oop.model;
+import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MoveValidator;
 import agh.ics.oop.model.util.directions.MapDirection;
 import agh.ics.oop.model.util.directions.Vector2d;
@@ -49,10 +50,35 @@ public class Animal implements WorldElement {
     public boolean isAt(Vector2d position) {
         return animalPosition.equals(position);
     }
-    public boolean move(MoveValidator moveValidator) {
+    public boolean move(MoveValidator moveValidator, Boundary currentBoundary) {
         animalEnergy--;
         animalDirection = animalGenome.nextDirection(animalDirection);
         Vector2d nextAnimalPosition = animalPosition.add(animalDirection.toUnitVector());
+
+        /*
+        if(nextAnimalPosition.getX() > currentBoundary.rightUpper().getX()) {
+            nextAnimalPosition = animalPosition.moveToLeftBoundary(currentBoundary, nextAnimalPosition);
+        } else if (nextAnimalPosition.getX() < currentBoundary.leftLower().getX()) {
+            nextAnimalPosition = animalPosition.moveToRightBoundary(currentBoundary, nextAnimalPosition);
+        }
+
+        if (nextAnimalPosition.getY() > currentBoundary.rightUpper().getY()){
+            nextAnimalPosition = animalPosition.changeYDirectionToSouth();
+        } else if (nextAnimalPosition.getY() < currentBoundary.leftLower().getY()) {
+            nextAnimalPosition = animalPosition.changeYDirectionToNorth();
+        }
+        */
+
+        if(nextAnimalPosition.getX() > currentBoundary.rightUpper().getX() ||
+            nextAnimalPosition.getX() < currentBoundary.leftLower().getX() ||
+            nextAnimalPosition.getY() < currentBoundary.leftLower().getY() ||
+            nextAnimalPosition.getY() > currentBoundary.rightUpper().getY()) {
+            nextAnimalPosition = animalPosition.random(currentBoundary);
+            animalEnergy = energyMinusHalf();
+        } else {
+            animalEnergy --;
+        }
+
         if(moveValidator.canMoveTo(nextAnimalPosition)) {
             animalPosition = nextAnimalPosition;
             return true;
@@ -60,5 +86,9 @@ public class Animal implements WorldElement {
             animalDirection = animalDirection.flip();
         }
         return false;
+    }
+
+    private int energyMinusHalf() {
+        return animalEnergy - animalEnergy/2;
     }
 }

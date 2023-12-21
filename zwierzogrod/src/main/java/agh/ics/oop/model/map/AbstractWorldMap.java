@@ -58,7 +58,8 @@ abstract public class AbstractWorldMap implements WorldMap {
 
     public void move(WorldElement animal) {
         Vector2d oldPosition = animal.getPosition();
-        if (animal.move(this)) {
+        Boundary currentBounds = getCurrentBounds();
+        if (animal.move(this, currentBounds)) {
             animals.remove(oldPosition);
             animals.put(animal.getPosition(), animal);
             mapChanged("%s -> %s".formatted(oldPosition, animal.getPosition()));

@@ -1,5 +1,7 @@
 package agh.ics.oop.model.util.directions;
 
+import agh.ics.oop.model.util.Boundary;
+
 import java.util.Objects;
 
 import static java.lang.Math.max;
@@ -53,4 +55,25 @@ public class Vector2d {
         return Objects.hash(this.x, this.y);
     }
 
+    public Vector2d moveToLeftBoundary(Boundary currentBoundary, Vector2d nextAnimalPosition){
+        return new Vector2d(currentBoundary.leftLower().getX(), nextAnimalPosition.getY());
+    }
+    public Vector2d moveToRightBoundary(Boundary currentBoundary, Vector2d nextAnimalPosition){
+        return new Vector2d(currentBoundary.rightUpper().getX(), nextAnimalPosition.getY());
+    }
+    public Vector2d changeYDirectionToSouth() {
+        return new Vector2d(x, y);
+    }
+    public Vector2d changeYDirectionToNorth() {
+        return new Vector2d(x, y);
+    }
+
+    public Vector2d random(Boundary currentBoundary){
+        return new Vector2d(
+                (int) (Math.random() * (currentBoundary.rightUpper().getX() -
+                        currentBoundary.leftLower().getX() + 1) + currentBoundary.leftLower().getX()),
+                (int) (Math.random() * (currentBoundary.rightUpper().getY() -
+                        currentBoundary.leftLower().getY() + 1 ) + currentBoundary.leftLower().getY())
+        );
+    }
 }

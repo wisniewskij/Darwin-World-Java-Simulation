@@ -1,5 +1,6 @@
 package agh.ics.oop.model;
 
+import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MoveValidator;
 import agh.ics.oop.model.util.directions.Vector2d;
 
@@ -21,7 +22,7 @@ public class Grass implements WorldElement {
     }
 
     @Override
-    public boolean move(MoveValidator validator) {
+    public boolean move(MoveValidator validator, Boundary currentBoundary) {
         return false;
     }
 }
