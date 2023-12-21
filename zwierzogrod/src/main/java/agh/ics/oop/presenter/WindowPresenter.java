@@ -101,7 +101,8 @@ public class WindowPresenter implements MapChangeListener {
         });
     }
     public void runSimulation() {
-        GrassField grassField = new GrassField(10);
+        GrassField grassField = new GrassField();
+        grassField.setGrasses(100);
         setWorldMap(grassField);
         grassField.registerObserver(this);
         List<Vector2d> positions = List.of(new Vector2d(2,2));

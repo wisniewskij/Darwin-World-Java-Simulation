@@ -13,16 +13,24 @@ import java.util.Map;
 public class GrassField extends AbstractWorldMap implements WorldMap {
 
     Map<Vector2d, WorldElement> grasses = new HashMap<>();
-    public GrassField(int grass) {
+
+    Vector2d upper = new Vector2d(10,10);
+
+    Vector2d lower = new Vector2d(-10, -10);
+    public GrassField() {
         super();
-        int boundary = (int) Math.sqrt(10 * grass);
-        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(-boundary, boundary, -boundary, boundary, grass);
+    }
+
+    public void setGrasses(int grass) {
+        int minX = lower.getX();
+        int minY = lower.getY();
+        int maxX = upper.getX();
+        int maxY = upper.getY();
+
+        RandomPositionGenerator randomPositionGenerator = new RandomPositionGenerator(minX,maxX, minY, maxY, grass);
         for(Vector2d grassPosition : randomPositionGenerator) {
             grasses.put(grassPosition, new Grass(grassPosition));
         }
-    }
-    public GrassField() {
-        this(10);
     }
 
     @Override
@@ -34,30 +42,7 @@ public class GrassField extends AbstractWorldMap implements WorldMap {
 
     @Override
     public Boundary getCurrentBounds() {
-        Vector2d upper = null;
-        Vector2d lower = null;
-
-        amendCorners(lower, upper, super.animals);
-        Vector2d[] tmp = amendCorners(lower, upper, grasses);
-        lower = tmp[0];
-        upper = tmp[1];
-        tmp = amendCorners(lower, upper, super.animals);
-        lower = tmp[0];
-        upper = tmp[1];
-        if(upper == null) upper = new Vector2d(0, 0);
-        if(lower == null) lower = new Vector2d(0, 0);
         return new Boundary(lower, upper);
-    }
-
-    private Vector2d[] amendCorners(Vector2d lower, Vector2d upper, Map<Vector2d, WorldElement> map) {
-        for(WorldElement elem: map.values()){
-            Vector2d pos = elem.getPosition();
-            if(upper == null) upper = new Vector2d(pos.getX(), pos.getY());
-            if(lower == null) lower = new Vector2d(pos.getX(), pos.getY());
-            upper = upper.upperRight(pos);
-            lower = lower.lowerLeft(pos);
-        }
-        return new Vector2d[]{lower, upper};
     }
 
     public List<WorldElement> getElements() {

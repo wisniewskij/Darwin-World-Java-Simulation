@@ -10,13 +10,19 @@ public class RandomPositionGenerator implements Iterable<Vector2d>{
     List<Vector2d> vectorList = new ArrayList<Vector2d>(0);
 
     public RandomPositionGenerator(int minX, int maxX, int minY, int maxY, int n) {
-        if (maxX<minX || maxY<minY || (maxX - minX + 1) * (maxY - minY + 1) < n ) {
-            throw new java.util.NoSuchElementException();
-        }
         this.n = n;
-        for(int i=minX; i<=maxX; i++)
-            for(int j=minY; j<=maxY; j++)
-                vectorList.add(new Vector2d(i, j));
+        for(int i = 0; i < n; i++){
+            double random = Math.random();
+            boolean onEquatorTerrain = random >= 0.2;
+            int x, y;
+            x = (int) (Math.random() * (maxX-minX + 1) + minX);
+            if (onEquatorTerrain) {
+                y = (int) (Math.random() * (maxY / 4 - minY / 4 + 1) + minY / 4);
+            } else {
+                y = (int) (Math.random() * (maxY - minY + 1) + minY);
+            }
+            vectorList.add(new Vector2d(x, y));
+        }
     }
 
     public Iterator<Vector2d> iterator() {
