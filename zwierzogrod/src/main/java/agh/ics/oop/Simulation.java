@@ -17,13 +17,13 @@ public class Simulation implements Runnable {
         animals = new ArrayList<>(0);
         for(Vector2d pos: positions) {
             Animal animal = new Animal();
-            try {
-                map.place(animal);
-                animals.add(animal);
-                map.mapChanged("Animal added on position: " + positions);
-            } catch (PositionAlreadyOccupiedException e) {
-                System.out.println(e.getMessage());
-            }
+//            try {
+            map.placeNewAnimal(animal);
+            animals.add(animal);
+            map.mapChanged("Animal added on position: " + positions);
+//            } catch (PositionAlreadyOccupiedException e) {
+//                System.out.println(e.getMessage());
+//            }
         }
     }
     @Override

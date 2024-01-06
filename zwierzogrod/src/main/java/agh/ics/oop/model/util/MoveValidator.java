@@ -11,4 +11,12 @@ public interface MoveValidator {
      * @return True if the object can move to that position.
      */
     boolean canMoveTo(Vector2d position);
+    /**
+     * Give the correct output position
+     *
+     * @param position The position checked for conversion.
+     * @return New position for the object.
+     */
+    Vector2d convertNextPosition(Vector2d position);
+
 }

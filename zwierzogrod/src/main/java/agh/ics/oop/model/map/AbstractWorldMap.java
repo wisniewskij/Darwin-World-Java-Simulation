@@ -9,7 +9,7 @@ import agh.ics.oop.model.util.exceptions.PositionAlreadyOccupiedException;
 import java.util.*;
 
 abstract public class AbstractWorldMap implements WorldMap {
-    public Map<Vector2d, WorldElement> animals = new HashMap<>();
+    public Map<Vector2d, TreeSet<Animal>> animals = new HashMap<>();
     private final UUID mapId;
     public HashSet<MapChangeListener> observers = new HashSet<>();
 
@@ -41,7 +41,7 @@ abstract public class AbstractWorldMap implements WorldMap {
         for (MapChangeListener listener : observers)
                 listener.mapChanged(this, message);
     }
-    public WorldElement objectAt(Vector2d position) {
+    public TreeSet<Animal> animalsAt(Vector2d position) {
         return animals.get(position);
     }
     public abstract Boundary getCurrentBounds();
@@ -52,29 +52,43 @@ abstract public class AbstractWorldMap implements WorldMap {
         return mapVisualizer.draw(bounds.leftLower(), bounds.rightUpper());
     }
 
-    public boolean isOccupied(Vector2d position) {
-        return objectAt(position) != null;
+    void placeAnimalAt(Animal animal, Vector2d position) {
+        if (animals.containsKey(position)) {
+            animals.get(position).add(animal);
+        } else {
+            animals.put(position, new TreeSet<>(Comparator.comparingInt(Animal::getEnergy).reversed()));
+            animals.get(position).add(animal);
+        }
+    }
+    void takeAnimalFrom(Animal animal, Vector2d oldPosition) {
+        animals.get(oldPosition).remove(animal);
+        if (animals.get(oldPosition).isEmpty())
+            animals.remove(oldPosition);
     }
 
-    public void move(WorldElement animal) {
+    public boolean isOccupied(Vector2d position) {
+        return animalsAt(position) != null;
+    }
+
+    public void move(Animal animal) {
         Vector2d oldPosition = animal.getPosition();
         if (animal.move(this)) {
-            animals.remove(oldPosition);
-            animals.put(animal.getPosition(), animal);
+            takeAnimalFrom(animal, oldPosition);
+            placeAnimalAt(animal, animal.getPosition());
             mapChanged("%s -> %s".formatted(oldPosition, animal.getPosition()));
         }
     }
-    public void place(WorldElement animal) throws PositionAlreadyOccupiedException {
-        Vector2d animalPos = animal.getPosition();
-        if(! canMoveTo(animalPos)) throw new PositionAlreadyOccupiedException(animalPos);
-        animals.put(animal.getPosition(), animal);
-        mapChanged("new at %s".formatted(animalPos));
+    public void placeNewAnimal(Animal animal) {
+        placeAnimalAt(animal, animal.getPosition());
+        mapChanged("new at %s".formatted(animal.getPosition()));
     }
 
-
-
     @Override
-    public List<WorldElement> getElements() {
-        return new ArrayList<>(animals.values());
+    public List<Animal> getAnimals() {
+        ArrayList<Animal> allAnimals = new ArrayList<>();
+        for (TreeSet<Animal> animalSet : animals.values()) {
+            allAnimals.addAll(animalSet);
+        }
+        return allAnimals;
     }
 }

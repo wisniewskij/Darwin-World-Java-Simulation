@@ -2,7 +2,7 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
-import agh.ics.oop.model.map.GrassField;
+import agh.ics.oop.model.map.Earth;
 import agh.ics.oop.model.map.MapChangeListener;
 import agh.ics.oop.model.map.WorldMap;
 import agh.ics.oop.model.util.Boundary;
@@ -101,9 +101,9 @@ public class WindowPresenter implements MapChangeListener {
         });
     }
     public void runSimulation() {
-        GrassField grassField = new GrassField(10);
-        setWorldMap(grassField);
-        grassField.registerObserver(this);
+        Earth earth = new Earth(10, 10, 10);
+        setWorldMap(earth);
+        earth.registerObserver(this);
         List<Vector2d> positions = List.of(new Vector2d(2,2));
         Simulation simulation = new Simulation(positions, worldMap);
         SimulationEngine simulationEngine = new SimulationEngine(List.of(simulation));

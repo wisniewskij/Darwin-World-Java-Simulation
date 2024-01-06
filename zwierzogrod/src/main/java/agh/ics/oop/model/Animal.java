@@ -54,7 +54,7 @@ public class Animal implements WorldElement {
         animalDirection = animalGenome.nextDirection(animalDirection);
         Vector2d nextAnimalPosition = animalPosition.add(animalDirection.toUnitVector());
         if(moveValidator.canMoveTo(nextAnimalPosition)) {
-            animalPosition = nextAnimalPosition;
+            animalPosition = moveValidator.convertNextPosition(nextAnimalPosition);
             return true;
         } else {
             animalDirection = animalDirection.flip();
