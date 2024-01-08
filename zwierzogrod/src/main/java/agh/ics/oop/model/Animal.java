@@ -3,23 +3,29 @@ import agh.ics.oop.model.util.MoveValidator;
 import agh.ics.oop.model.util.directions.MapDirection;
 import agh.ics.oop.model.util.directions.Vector2d;
 
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 public class Animal implements WorldElement {
-    private static int GENOME_LENGTH = 10;
-    private static int MAX_ENERGY = 10;
+    private int MAX_ENERGY = 1000000, reproductionUsedEnergy, MIN_MUTATIONS, MAX_MUTATIONS;
     private MapDirection animalDirection;
     private Vector2d animalPosition;
     private int animalEnergy;
     private final AnimalGenome animalGenome;
+    public void setArgs(int minMutations, int maxMutations, int reproductionUsedEnergy) {
+        reproductionUsedEnergy = reproductionUsedEnergy;
+        MIN_MUTATIONS = minMutations;
+        MAX_MUTATIONS = maxMutations;
+    }
     public Animal(Vector2d position, int energy, AnimalGenome animalGenome) {
         animalPosition = position;
         animalDirection = MapDirection.getRandomDirection();
         animalEnergy = energy;
         this.animalGenome = animalGenome;
     }
-    public Animal() {
-        this(new Vector2d(2, 2), 10, new AnimalGenome(GENOME_LENGTH));
+    public Animal(Vector2d position, int energy, int minMutations, int maxMutations, int reproductionUsedEnergy, int geonmeLength, Boolean mutationsEnabled) {
+        this(position, energy, new AnimalGenome(geonmeLength, mutationsEnabled, minMutations, maxMutations));
+        this.reproductionUsedEnergy = reproductionUsedEnergy;
     }
 
     public void addEnergy( int energy ) {
@@ -54,7 +60,11 @@ public class Animal implements WorldElement {
         animalDirection = animalGenome.nextDirection(animalDirection);
         Vector2d nextAnimalPosition = animalPosition.add(animalDirection.toUnitVector());
         if(moveValidator.canMoveTo(nextAnimalPosition)) {
-            animalPosition = moveValidator.convertNextPosition(nextAnimalPosition);
+            Vector2d newPosition = moveValidator.convertNextPosition(nextAnimalPosition);
+            if(! nextAnimalPosition.equals(newPosition)) {
+                animalEnergy = max(0, animalEnergy - reproductionUsedEnergy * moveValidator.getConversionCostMultiplier());
+            }
+            animalPosition = newPosition;
             return true;
         } else {
             animalDirection = animalDirection.flip();

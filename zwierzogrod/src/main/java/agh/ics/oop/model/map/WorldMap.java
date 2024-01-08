@@ -6,7 +6,6 @@ import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MoveValidator;
 import agh.ics.oop.model.util.directions.Vector2d;
 import agh.ics.oop.model.WorldElement;
-import agh.ics.oop.model.util.exceptions.PositionAlreadyOccupiedException;
 
 import java.util.List;
 import java.util.TreeSet;
@@ -72,4 +71,6 @@ public interface WorldMap extends MoveValidator {
     List<Grass> getGrass();
 
     Boundary getCurrentBounds();
+
+    void registerObserver(MapChangeListener listener);
 }

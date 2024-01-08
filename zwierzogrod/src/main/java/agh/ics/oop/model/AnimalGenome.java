@@ -1,30 +1,31 @@
 package agh.ics.oop.model;
 
 import agh.ics.oop.model.util.directions.MapDirection;
-import agh.ics.oop.model.util.directions.Vector2d;
-
-import java.security.KeyStore;
 import java.util.Random;
 
-import static java.util.Collections.min;
-import static java.util.Collections.swap;
 
 public class AnimalGenome {
     private static final int MAX_GEN_VALUE = 7;
     private static final int MIN_GEN_VALUE = 0;
-    private static final boolean MUTATIONS_ENABLED = true;
+    private boolean mutationsinMovesEnabled = true;
+    private int minMutations, maxMutations;
 
-//    private final int[] genome;
     public final int[] genome;
 
     private int currentGenIndex;
     private final Random random = new Random();
 
-    public AnimalGenome(int[] genome) {
+    public AnimalGenome(int[] genome, Boolean mutationsinMovesEnabled, int minMutations, int maxMutations) {
+        this.mutationsinMovesEnabled = mutationsinMovesEnabled;
+        this.minMutations = minMutations;
+        this.maxMutations = maxMutations;
         this.genome = genome;
         currentGenIndex = random.nextInt(genome.length);
     }
-    public AnimalGenome(int numberOfGenes) {
+    public AnimalGenome(int numberOfGenes, Boolean mutationsinMovesEnabled, int minMutations, int maxMutations) {
+        this.mutationsinMovesEnabled = mutationsinMovesEnabled;
+        this.minMutations = minMutations;
+        this.maxMutations = maxMutations;
         this.genome = createRandomGenome(numberOfGenes);
         currentGenIndex = random.nextInt(numberOfGenes);
     }
@@ -36,7 +37,7 @@ public class AnimalGenome {
     }
 
     public MapDirection nextDirection(MapDirection currentDirection){
-        if (MUTATIONS_ENABLED && random.nextInt(5) == 0) {
+        if (mutationsinMovesEnabled && random.nextInt(5) == 0) {
             currentGenIndex = random.nextInt(genome.length);
         } else {
             currentGenIndex = (currentGenIndex + 1) % genome.length;
@@ -44,7 +45,7 @@ public class AnimalGenome {
         return currentDirection.next(genome[currentGenIndex]);
     }
 
-    public static AnimalGenome newAnimalGenomeFromReproduction(Animal animal1, Animal animal2, int genomeLen, int minMutations, int maxMutations) {
+    public static AnimalGenome newAnimalGenomeFromReproduction(Animal animal1, Animal animal2, int genomeLen, Boolean mutationsinMovesEnabled, int minMutations, int maxMutations) {
 
         int[] newGenomeArray = new int[genomeLen];
         AnimalGenome strongerGenome, weakerGenome;
@@ -77,6 +78,6 @@ public class AnimalGenome {
             }
         }
 
-        return new AnimalGenome(newGenomeArray);
+        return new AnimalGenome(newGenomeArray, mutationsinMovesEnabled, minMutations, maxMutations);
     }
 }

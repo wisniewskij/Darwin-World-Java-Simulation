@@ -5,20 +5,103 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
-<BorderPane xmlns="http://javafx.com/javafx"
+<?import javafx.scene.control.ChoiceBox?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<BorderPane xmlns="http://javafx.com/javafx "
             xmlns:fx="http://javafx.com/fxml"
             minHeight="200.0" minWidth="200.0"
             fx:controller="agh.ics.oop.presenter.SimulationPresenter">
     <top>
-        <VBox>
-            <TextField fx:id="argInput" promptText="Enter arguments"/>
-        </VBox>
+        <HBox spacing="10" alignment="CENTER">
+            <VBox spacing="10" alignment="CENTER">
+                <TextField fx:id="argInput" promptText="Enter arguments"/>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Map type" />
+                    <ChoiceBox fx:id="mapChoiceBox" prefWidth="200">
+                        <!-- Items to be displayed in the ChoiceBox -->
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Earth" />
+                                <String fx:value="Infernal Portal" />
+                            </FXCollections>
+                        </items>
+                    </ChoiceBox>
+                </VBox>
+
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Map Height" />
+                    <TextField fx:id="mapHeightTextField" text="10"/>
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Map Width" />
+                    <TextField fx:id="mapWidthTextField" text="10" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="How many plants initially" />
+                    <TextField fx:id="plantsNumberTextField" text="10" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Energy regained after eating plant" />
+                    <TextField fx:id="plantEnergyTextField" text="4" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Daily Growth" />
+                    <TextField fx:id="dailyPlantsTextField" text="2" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="How many animals initially" />
+                    <TextField fx:id="animalNumberTextField" text="4" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Animal initial energy" />
+                    <TextField fx:id="energyNumberTextField" text="10" />
+                </VBox>
+            </VBox>
+            <VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="How much energy needed to copulate" />
+                    <TextField fx:id="energyCopulateTextField" text="5" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Energy used in replication" />
+                    <TextField fx:id="energyUsedToReplicateTextField" text="3" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Min mutations" />
+                    <TextField fx:id="minMutationsTextField" text="0" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Max mutations" />
+                    <TextField fx:id="maxMutationsTextField" text="0" />
+                </VBox>
+
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Mutations variant" />
+                    <ChoiceBox fx:id="mutationChoiceBox" prefWidth="200">
+                        <!-- Items to be displayed in the ChoiceBox -->
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Normal" />
+                                <String fx:value="A little bit of chaos" />
+                            </FXCollections>
+                        </items>
+                    </ChoiceBox>
+                </VBox>
+
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Genome length" />
+                    <TextField fx:id="genomeTextField" text="10" />
+                </VBox>
+            </VBox>
+        </HBox>
     </top>
     <center>
     </center>
     <bottom>
-        <Button onAction="#onSimulationStartClicked" text="Start"/>
+        <HBox alignment="CENTER">
+            <Button onAction="#onSimulationStartClicked" text="Start"/>
+        </HBox>
     </bottom>
 </BorderPane>
