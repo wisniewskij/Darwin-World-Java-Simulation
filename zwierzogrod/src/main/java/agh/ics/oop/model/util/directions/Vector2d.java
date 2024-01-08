@@ -1,6 +1,7 @@
 package agh.ics.oop.model.util.directions;
 
 import java.util.Objects;
+import java.util.Random;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -51,6 +52,11 @@ public class Vector2d {
     @Override
     public int hashCode() {
         return Objects.hash(this.x, this.y);
+    }
+
+    public static Vector2d randomVector(int lowX, int highX, int lowY, int highY) {
+        Random random = new Random();
+        return new Vector2d(random.nextInt((highX - lowX) + 1) + lowX, random.nextInt((highY - lowY) + 1) + lowY);
     }
 
 }

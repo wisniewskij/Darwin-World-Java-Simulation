@@ -2,7 +2,8 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
-import agh.ics.oop.model.map.GrassField;
+import agh.ics.oop.model.map.Earth;
+import agh.ics.oop.model.map.HellPortal;
 import agh.ics.oop.model.map.MapChangeListener;
 import agh.ics.oop.model.map.WorldMap;
 import agh.ics.oop.model.util.Boundary;
@@ -24,12 +25,27 @@ public class WindowPresenter implements MapChangeListener {
     private GridPane mapGrid;
 
     private WorldMap worldMap;
-    private String args;
+
+    private int initialEnergy, minMutations, maxMutations, mapWidth, mapHeight, plantEnergyRegain, initialAnimalNumber, initialPlantNumber, plantGrowNumber, reproductionReadyEnergy, reproductionUsedEnergy, genomeLength;
+    private String mapVariant, mutationsVariant;
     public void setWorldMap(WorldMap map){
         worldMap = map;
     }
-    public void setArgs(String args) {
-        this.args = args;
+    public void setArgs(String mapVariant, String mutationsVariant, int mapWidth, int mapHeight, int minMutations, int maxMutations, int initialPlantNumber, int initialAnimalNumber, int plantGrowNumber, int plantEnergyRegain, int reproductionReadyEnergy, int reproductionUsedEnergy, int genomeLength, int initialEnergy) {
+        this.mapVariant = mapVariant;
+        this.mutationsVariant = mutationsVariant;
+        this.mapHeight = mapHeight;
+        this.mapWidth = mapWidth;
+        this.minMutations = minMutations;
+        this.maxMutations = maxMutations;
+        this.initialAnimalNumber = initialAnimalNumber;
+        this.initialPlantNumber = initialPlantNumber;
+        this.plantEnergyRegain = plantEnergyRegain;
+        this.plantGrowNumber = plantGrowNumber;
+        this.reproductionReadyEnergy = reproductionReadyEnergy;
+        this.reproductionUsedEnergy = reproductionUsedEnergy;
+        this.genomeLength = genomeLength;
+        this.initialEnergy = initialEnergy;
     }
 
     private void clearGrid() {
@@ -101,11 +117,18 @@ public class WindowPresenter implements MapChangeListener {
         });
     }
     public void runSimulation() {
-        GrassField grassField = new GrassField(10);
-        setWorldMap(grassField);
-        grassField.registerObserver(this);
-        List<Vector2d> positions = List.of(new Vector2d(2,2));
-        Simulation simulation = new Simulation(positions, worldMap);
+        WorldMap map;
+        if(mapVariant.equals("Infernal Portal")) {
+            map = new HellPortal(initialPlantNumber, mapHeight, mapWidth);
+        } else {
+            map = new Earth(initialPlantNumber, mapHeight, mapWidth);
+        }
+
+
+        setWorldMap(map);
+        map.registerObserver(this);
+
+        Simulation simulation = new Simulation(map, minMutations, maxMutations, plantEnergyRegain, initialAnimalNumber, initialPlantNumber, plantGrowNumber, reproductionReadyEnergy, reproductionUsedEnergy, genomeLength, initialEnergy, mutationsVariant.equals("A little bit of chaos"));
         SimulationEngine simulationEngine = new SimulationEngine(List.of(simulation));
         try {
             simulationEngine.runAsync();
