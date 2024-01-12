@@ -102,6 +102,8 @@
     <bottom>
         <HBox alignment="CENTER">
             <Button onAction="#onSimulationStartClicked" text="Start"/>
+            <Button onAction="#onLoadClicked" text="Load configuration"/>
+            <Button onAction="#onSaveClicked" text="Save configuration"/>
         </HBox>
     </bottom>
 </BorderPane>
