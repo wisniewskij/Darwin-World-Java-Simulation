@@ -2,6 +2,8 @@ package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.Animal;
 import agh.ics.oop.model.Grass;
+import agh.ics.oop.model.statistics.MapStats;
+import agh.ics.oop.model.statistics.visitor.Visitable;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.MoveValidator;
 import agh.ics.oop.model.util.directions.Vector2d;
@@ -15,7 +17,7 @@ import java.util.UUID;
  * The interface responsible for interacting with the map of the world.
  * @author apohllo, idzik
  */
-public interface WorldMap extends MoveValidator {
+public interface WorldMap extends MoveValidator, Visitable {
     /**
      * Notifies ovservers about map change.
      * @param message message indicating what changed.
@@ -73,4 +75,16 @@ public interface WorldMap extends MoveValidator {
     Boundary getCurrentBounds();
 
     void registerObserver(MapChangeListener listener);
+
+    void killAnimal(Animal animal);
+
+    void killGrass(Grass grass);
+
+    void spawnNewGrasses(int n);
+
+    List<WorldElement> getElements();
+
+    int getMapArea();
+
+    void statsChanged(MapStats stats);
 }

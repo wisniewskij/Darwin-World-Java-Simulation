@@ -1,9 +1,10 @@
 package agh.ics.oop.model.map;
 
 
+import agh.ics.oop.model.statistics.visitor.Visitable;
 import agh.ics.oop.model.util.directions.Vector2d;
 
-public class Earth extends AbstractWorldMap implements WorldMap {
+public class Earth extends AbstractWorldMap implements WorldMap, Visitable {
 
     public Earth(int grass, int mapHeight, int mapWidth) {
         super(grass, mapHeight, mapWidth);

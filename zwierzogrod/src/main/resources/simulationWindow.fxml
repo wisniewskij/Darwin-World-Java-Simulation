@@ -12,12 +12,51 @@
             minHeight="550.0" minWidth="850.0"
             fx:controller="agh.ics.oop.presenter.WindowPresenter">
     <top>
-        <Label fx:id="moveLabel" text="Moves will be displayed here!"/>
+        <HBox>
+            <Label text="Map ID:  "/>
+            <Label fx:id="mapIDLabel"/>
+        </HBox>
+
+<!--        <Label fx:id="moveLabel" text="debug moves will be displayed here!" BorderPane.alignment="CENTER"/>-->
     </top>
     <center>
-        <GridPane fx:id="mapGrid" alignment="center" gridLinesVisible="true">
-        </GridPane>
+        <HBox fillHeight="true">
+            <VBox HBox.hgrow="ALWAYS">
+                <GridPane fx:id="mapGrid" alignment="center" gridLinesVisible="true">
+                </GridPane>
+            </VBox>
+            <VBox HBox.hgrow="NEVER">
+                <VBox>
+
+                    <Label text="Total Number of Animals:"/>
+                    <Label fx:id="totalAnimalsLabel"/>
+
+                    <Label text="Total Number of Plants:"/>
+                    <Label fx:id="totalPlantsLabel"/>
+
+                    <Label text="Number of Empty Fields:"/>
+                    <Label fx:id="emptyFieldsLabel"/>
+
+                    <Label text="Most Popular Genomes:"/>
+                    <Label fx:id="mostPopularGenomeLabel"/>
+
+                    <Label text="Average Energy of Living Animals:"/>
+                    <Label fx:id="averageEnergyLabel"/>
+
+                    <Label text="Average Lifespan of Dead Animals:"/>
+                    <Label fx:id="averageLifespanLabel"/>
+
+                    <Label text="Average Number of Children for Living Animals:"/>
+                    <Label fx:id="averageChildrenLabel"/>
+                </VBox>
+            </VBox>
+        </HBox>
     </center>
     <bottom>
+        <HBox alignment="CENTER">
+            <Button fx:id="pauseButton" onAction="#onPauseClicked" text="Pause"/>
+            <Button fx:id="jungleButton" onAction="#onJungleButtonClicked" text="Show Jungle"/>
+            <Button fx:id="genomeButton" onAction="#onGenomeButtonClicked" text="Show Dominating Genome Location"/>
+        </HBox>
     </bottom>
 </BorderPane>

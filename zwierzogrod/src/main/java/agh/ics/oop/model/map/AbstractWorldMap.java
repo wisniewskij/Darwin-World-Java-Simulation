@@ -1,13 +1,16 @@
 package agh.ics.oop.model.map;
 
 import agh.ics.oop.model.*;
+import agh.ics.oop.model.statistics.MapStats;
+import agh.ics.oop.model.statistics.visitor.Visitable;
+import agh.ics.oop.model.statistics.visitor.Visitor;
 import agh.ics.oop.model.util.MapVisualizer;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.RandomGrassPositionGenerator;
 import agh.ics.oop.model.util.directions.Vector2d;
 import java.util.*;
 
-abstract public class AbstractWorldMap implements WorldMap {
+abstract public class AbstractWorldMap implements WorldMap, Visitable {
     protected final int mapHeight, mapWidth;
     public Map<Vector2d, Grass> grasses = new HashMap<>();
     public Map<Vector2d, TreeSet<Animal>> animals = new HashMap<>();
@@ -15,19 +18,14 @@ abstract public class AbstractWorldMap implements WorldMap {
     private final UUID mapId;
     private int updateCounter;
 
-    public AbstractWorldMap(int grass, int mapHeight, int mapWidth) {
+    public AbstractWorldMap(int initialGrassesNumber, int mapHeight, int mapWidth) {
         mapId = UUID.randomUUID();
         updateCounter = 0;
         this.mapHeight = mapHeight;
         this.mapWidth = mapWidth;
-        RandomGrassPositionGenerator randomGrassPositionGenerator = new RandomGrassPositionGenerator(mapHeight, mapWidth, grasses);
-
-        int already_added = 0;
-        for(Vector2d grassPosition : randomGrassPositionGenerator) {
-            if (already_added++ >= grass) break;
-            grasses.put(grassPosition, new Grass(grassPosition));
-        }
+        spawnNewGrasses(initialGrassesNumber);
     }
+
     public AbstractWorldMap() {
         this(10, 10, 10);
     }
@@ -52,6 +50,22 @@ abstract public class AbstractWorldMap implements WorldMap {
             listener.mapChanged(this, message);
     }
 
+    public void statsChanged(MapStats stats) {
+        for (MapChangeListener listener : observers)
+            listener.statsChanged(stats);
+    }
+    public void spawnNewGrasses(int n) {
+        RandomGrassPositionGenerator randomGrassPositionGenerator = new RandomGrassPositionGenerator(mapHeight, mapWidth, grasses);
+        for(Vector2d grassPosition : randomGrassPositionGenerator) {
+            if (n-- <= 0) break;
+            grasses.put(grassPosition, new Grass(grassPosition));
+        }
+    }
+
+    public int getMapArea() {
+        return mapWidth * mapHeight;
+    }
+
     public TreeSet<Animal> animalsAt(Vector2d position) {
         return animals.get(position);
     }
@@ -72,7 +86,7 @@ abstract public class AbstractWorldMap implements WorldMap {
         if (animals.containsKey(position)) {
             animals.get(position).add(animal);
         } else {
-            animals.put(position, new TreeSet<>(Comparator.comparingInt(Animal::getEnergy).reversed()));
+            animals.put(position, new TreeSet<>(Comparator.comparingInt(Animal::getEnergy).reversed().thenComparing(Animal::getBornIn).thenComparing(Animal::getNoCildren).thenComparing(Animal::getUniqueId)));
             animals.get(position).add(animal);
         }
     }
@@ -101,6 +115,16 @@ abstract public class AbstractWorldMap implements WorldMap {
     public void placeNewAnimal(Animal animal) {
         placeAnimalAt(animal, animal.getPosition());
         mapChanged("new at %s".formatted(animal.getPosition()));
+    }
+
+    public void killAnimal(Animal animal) {
+        mapChanged("died at %s".formatted(animal.getPosition()));
+        takeAnimalFrom(animal, animal.getPosition());
+    }
+
+    public void killGrass(Grass grass) {
+        mapChanged("eaten at %s".formatted(grass.getPosition()));
+        grasses.remove(grass.getPosition());
     }
 
     @Override
@@ -137,8 +161,13 @@ abstract public class AbstractWorldMap implements WorldMap {
     }
 
     public List<WorldElement> getElements() {
-        List<WorldElement> lista = new ArrayList<>(getAnimals());
-        lista.addAll(getGrass());
-        return lista;
+        List<WorldElement> list = new ArrayList<>(getAnimals());
+        list.addAll(getGrass());
+        return list;
+    }
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
     }
 }

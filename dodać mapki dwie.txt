@@ -1,0 +1,6 @@
+dodać mapki dwie
+dodać parametry podawane przez skubańca z konsoli mówiące o parametrach symulacji
+Zrobić żeby symulacja działała tak jak ma działać
+dodać zczytywanie statystyk
+dodać konwersje statów do csv
+dodać możliwość śledzenia zwierzaczków

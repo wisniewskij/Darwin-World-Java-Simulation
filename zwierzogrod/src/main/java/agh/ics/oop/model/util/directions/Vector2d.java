@@ -56,7 +56,7 @@ public class Vector2d {
 
     public static Vector2d randomVector(int lowX, int highX, int lowY, int highY) {
         Random random = new Random();
-        return new Vector2d(random.nextInt((highX - lowX) + 1) + lowX, random.nextInt((highY - lowY) + 1) + lowY);
+        return new Vector2d(lowX == highX ? lowX : random.nextInt((highX - lowX) + 1) + lowX, lowY == highY ? lowY : random.nextInt((highY - lowY) + 1) + lowY);
     }
 
 }
