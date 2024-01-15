@@ -4,21 +4,35 @@ import java.util.Random;
 
 public enum MapDirection {
     NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST;
-    public String toString() {
-        String[] directions = { "Północ", "Północny wschód" ,"Wschód", "Południowy wschód", "Południe", "Południowy zachód", "Zachód", "Północny Zachód" };
 
-        return directions[this.ordinal()];
+    private static final String[] DIRECTIONS = {
+            "Północ", "Północny wschód", "Wschód", "Południowy wschód",
+            "Południe", "Południowy zachód", "Zachód", "Północny Zachód"
+    };
+
+    private static final String[] ARROWS = {
+            "\u2191", "\u2197", "\u2192", "\u2198", "\u2193", "\u2199", "\u2190", "\u2196"
+    };
+
+    private static final Random RANDOM = new Random();
+
+    private static final int ARR_LEN = 8;
+
+    @Override
+    public String toString() {
+        return DIRECTIONS[this.ordinal()];
     }
+
     public MapDirection next(int i) {
-        MapDirection[] values = MapDirection.values();
-        return values[(this.ordinal()+i)%values.length];
+        return MapDirection.values()[(this.ordinal()+i+ARR_LEN)%ARR_LEN];
     }
+
     public MapDirection next() {
         return next(1);
     }
+
     public MapDirection previous() {
-        MapDirection[] values = MapDirection.values();
-        return values[(this.ordinal()-1+values.length)%values.length];
+        return next(-1);
     }
     public Vector2d toUnitVector() {
         Vector2d[] vectors = {
@@ -31,20 +45,14 @@ public enum MapDirection {
     }
 
     public String toArrow() {
-        String[] arrows = {"\u2191", "\u2197", "\u2192", "\u2198", "\u2193", "\u2199", "\u2190", "\u2196"};
-        return arrows[this.ordinal()];
+        return ARROWS[this.ordinal()];
     }
 
     public static MapDirection getRandomDirection() {
-        MapDirection[] values = MapDirection.values();
-        Random random = new Random();
-        int randomIndex = random.nextInt(values.length);
-
-        return values[randomIndex];
+        return MapDirection.values()[RANDOM.nextInt(ARR_LEN)];
     }
 
     public MapDirection flip() {
-        MapDirection[] values = MapDirection.values();
-        return values[(this.ordinal() + values.length/2)%values.length];
+        return MapDirection.values()[(this.ordinal() + ARR_LEN/2)%ARR_LEN];
     }
 }

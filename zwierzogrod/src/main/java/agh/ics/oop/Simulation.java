@@ -24,7 +24,7 @@ public class Simulation implements Runnable {
     private boolean paused = false;
     private final boolean statsLoggingEnabled;
 
-    public Simulation(WorldMap map, int minMutations, int maxMutations, int plantEnergyRegain, int initialAnimalNumber, int initialPlantNumber, int plantGrowthNumber, int reproductionReadyEnergy, int reproductionUsedEnergy, int genomeLength, int baseEnergy, boolean moveMutationsEnabled, int simulationInterval, Boolean statsLoggingEnabled) {
+    public Simulation(WorldMap map, int minMutations, int maxMutations, int plantEnergyRegain, int initialAnimalNumber, int plantGrowthNumber, int reproductionReadyEnergy, int reproductionUsedEnergy, int genomeLength, int baseEnergy, boolean moveMutationsEnabled, int simulationInterval, Boolean statsLoggingEnabled) {
         this.map = map;
         this.simulationInterval = simulationInterval;
         this.plantGrowthNumber = plantGrowthNumber;
@@ -37,8 +37,6 @@ public class Simulation implements Runnable {
 
         if(statsLoggingEnabled) MapStats.writeHeaderToCSV("log_files/%s.csv".formatted(map.getId()));
     }
-
-
 
     @Override
     public void run() {
@@ -102,22 +100,22 @@ public class Simulation implements Runnable {
         processReproduction(day);
         map.spawnNewGrasses(plantGrowthNumber);
 
-        MapStats mapStats = gatherStats();
+        MapStats mapStats = gatherMapStats(day);
 
         map.statsChanged(mapStats);
 
         if(statsLoggingEnabled) {
-            mapStats.logStatsToCSV("log_files/%s.csv".formatted(map.getId()), day);
+            mapStats.logStatsToCSV("log_files/%s.csv".formatted(map.getId()));
         }
+
     }
 
-
-    private MapStats gatherStats() {
-        Visitor visitor = new StatsVisitor();
+    private MapStats gatherMapStats(int day) {
+        Visitor visitor = new StatsVisitor(day);
         animals.forEach(animal -> animal.accept(visitor));
         deadAnimals.forEach(animal -> animal.accept(visitor));
         map.accept(visitor);
-        return visitor.getStats();
+        return (MapStats) visitor.getStats();
     }
 
     private void removeDeadAnimals(int day) {
@@ -143,10 +141,12 @@ public class Simulation implements Runnable {
                 .forEach(grass -> {
                     map.killGrass(grass);
 
-                    List<Animal> candidates = map.animalsAt(grass.getPosition()).stream()
-                            .filter(animal -> animal.getEnergy() == map.animalsAt(grass.getPosition()).first().getEnergy() &&
-                                    animal.getBornIn() == map.animalsAt(grass.getPosition()).first().getBornIn() &&
-                                    animal.getNoCildren() == map.animalsAt(grass.getPosition()).first().getNoCildren())
+                    TreeSet<Animal> animalsAtGivenPos = new TreeSet<>(Comparator.comparingInt(Animal::getEnergy).reversed().thenComparing(Animal::getDayBornIn).thenComparing(Animal::getNumberOfChildren).reversed().thenComparing(Animal::getUniqueId));
+                    animalsAtGivenPos.addAll(map.animalsAt(grass.getPosition()));
+                    List<Animal> candidates = animalsAtGivenPos.stream()
+                            .filter(animal -> animal.getEnergy() == animalsAtGivenPos.first().getEnergy() &&
+                                    animal.getDayBornIn() == animalsAtGivenPos.first().getDayBornIn() &&
+                                    animal.getNumberOfChildren() == animalsAtGivenPos.first().getNumberOfChildren())
                             .toList();
 
                     if (!candidates.isEmpty()) {
@@ -157,14 +157,17 @@ public class Simulation implements Runnable {
 
     private void processReproduction(int day) {
         List<Animal> newAnimals = animals.stream()
-                .filter(animal -> map.animalsAt(animal.getPosition()).size() > 1 && map.animalsAt(animal.getPosition()).first() == animal)
+                .filter(animal -> map.animalsAt(animal.getPosition()).size() > 1 && map.animalsAt(animal.getPosition()).stream().findFirst().orElse(null) == animal)
                 .flatMap(animal -> {
+                    TreeSet<Animal> animalsAtGivenPos = new TreeSet<>(Comparator.comparingInt(Animal::getEnergy).reversed().thenComparing(Animal::getDayBornIn).thenComparing(Animal::getNumberOfChildren).reversed().thenComparing(Animal::getUniqueId));
+                    animalsAtGivenPos.addAll(map.animalsAt(animal.getPosition()));
+
                     List<Animal> bestCandidates = new ArrayList<>();
-                    for(Animal potentialCandidate : map.animalsAt(animal.getPosition())) {
+                    for(Animal potentialCandidate : animalsAtGivenPos) {
                         bestCandidates.add(potentialCandidate);
-                        if(!(potentialCandidate.getEnergy() == map.animalsAt(animal.getPosition()).first().getEnergy()
-                                && potentialCandidate.getBornIn() == map.animalsAt(animal.getPosition()).first().getBornIn()
-                                && potentialCandidate.getNoCildren() == map.animalsAt(animal.getPosition()).first().getNoCildren())){
+                        if(!(potentialCandidate.getEnergy() == animalsAtGivenPos.first().getEnergy()
+                                && potentialCandidate.getDayBornIn() == animalsAtGivenPos.first().getDayBornIn()
+                                && potentialCandidate.getNumberOfChildren() == animalsAtGivenPos.first().getNumberOfChildren())){
                             break;
                         }
                     }

@@ -16,6 +16,8 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import static agh.ics.oop.SimulationApp.configureStage;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 public class SimulationPresenter {
     @FXML
@@ -31,13 +33,45 @@ public class SimulationPresenter {
 
     @FXML
     public void initialize() {
-        // Set default values
         mapChoiceBox.setValue("Earth");
         mutationChoiceBox.setValue("Normal");
-        // You can set defaults for other choice boxes or fields here if needed
+    }
+
+    private static int parseIntOrDefault(TextField textField, int defaultValue) {
+        try {
+            return Integer.parseInt(textField.getText());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
+    private static String assureInRangeAndToString(int val, int lower, int upper) {
+        return String.valueOf(min(max(val, lower), upper));
+    }
+
+    private void assureDataValidity() {
+        mapWidthTextField.setText(assureInRangeAndToString(parseIntOrDefault(mapWidthTextField, 10), 1, 20));
+        mapHeightTextField.setText(assureInRangeAndToString(parseIntOrDefault(mapHeightTextField, 10), 1, 20));
+
+        int mapArea = Integer.parseInt(mapWidthTextField.getText()) * Integer.parseInt(mapHeightTextField.getText());
+
+        dailyPlantsTextField.setText(assureInRangeAndToString(parseIntOrDefault(dailyPlantsTextField, 4), 0, mapArea));
+        plantEnergyTextField.setText(assureInRangeAndToString(parseIntOrDefault(plantEnergyTextField, 5), 0, Integer.MAX_VALUE));
+        animalNumberTextField.setText(assureInRangeAndToString(parseIntOrDefault(animalNumberTextField, 4), 1, mapArea));
+        plantsNumberTextField.setText(assureInRangeAndToString(parseIntOrDefault(plantsNumberTextField, 10), 0, mapArea));
+        energyCopulateTextField.setText(assureInRangeAndToString(parseIntOrDefault(energyCopulateTextField, 4), 0, Integer.MAX_VALUE));
+        energyUsedToReplicateTextField.setText(assureInRangeAndToString(parseIntOrDefault(energyUsedToReplicateTextField, 3), 0, Integer.parseInt(energyCopulateTextField.getText())));
+        speedTextField.setText(assureInRangeAndToString(parseIntOrDefault(speedTextField, 300), 50, 5000));
+        genomeTextField.setText(assureInRangeAndToString(parseIntOrDefault(genomeTextField, 10), 1, 100));
+        minMutationsTextField.setText(assureInRangeAndToString(parseIntOrDefault(minMutationsTextField, 0), 0, Integer.parseInt(genomeTextField.getText())));
+        maxMutationsTextField.setText(assureInRangeAndToString(parseIntOrDefault(maxMutationsTextField, 0), Integer.parseInt(minMutationsTextField.getText()), Integer.parseInt(genomeTextField.getText())));
+        energyNumberTextField.setText(assureInRangeAndToString(parseIntOrDefault(energyNumberTextField, 10), 0, Integer.MAX_VALUE));
     }
 
     public void onSimulationStartClicked() throws IOException {
+
+        assureDataValidity();
+
         Stage newWindowStage = new Stage();
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getClassLoader().getResource("simulationWindow.fxml"));
@@ -69,6 +103,9 @@ public class SimulationPresenter {
 
     @FXML
     private void onSaveClicked() {
+
+        assureDataValidity();
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save configuration");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Configuration Files", "*.properties"));
@@ -85,6 +122,9 @@ public class SimulationPresenter {
 
     @FXML
     private void onLoadClicked() {
+
+        assureDataValidity();
+
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Load configuration");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Configuration Files", "*.properties"));

@@ -2,12 +2,16 @@ package agh.ics.oop.presenter;
 
 import agh.ics.oop.Simulation;
 import agh.ics.oop.SimulationEngine;
+import agh.ics.oop.model.Animal;
 import agh.ics.oop.model.AnimalGenome;
 import agh.ics.oop.model.map.Earth;
 import agh.ics.oop.model.map.HellPortal;
 import agh.ics.oop.model.map.MapChangeListener;
 import agh.ics.oop.model.map.WorldMap;
+import agh.ics.oop.model.statistics.AnimalStats;
 import agh.ics.oop.model.statistics.MapStats;
+import agh.ics.oop.model.statistics.visitor.AnimalVisitor;
+import agh.ics.oop.model.statistics.visitor.Visitor;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.directions.Vector2d;
 import javafx.application.Platform;
@@ -16,11 +20,11 @@ import javafx.geometry.HPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.RowConstraints;
 
-import java.security.KeyStore;
 import java.util.List;
 
 import static java.lang.Math.abs;
@@ -36,17 +40,19 @@ public class WindowPresenter implements MapChangeListener {
 
     @FXML
     private Label totalAnimalsLabel, totalPlantsLabel, emptyFieldsLabel, mostPopularGenomeLabel, averageEnergyLabel,
-            averageLifespanLabel, averageChildrenLabel, mapIDLabel;
+            averageLifespanLabel, averageChildrenLabel, mapIDLabel, animPosLabel, animGenLabel, animEnergyLabel, animPlantsLabel, animDescLabel,
+            animChildrenLabel, animLifeSpanLabel, animDiedInLabel, ageLabel;
 
     private WorldMap worldMap;
     private Boolean statsLoggingEnabled;
     private Boolean jungleHighlighted, genomeHighlighted;
+    private Animal pickedAnimal;
 
     AnimalGenome mostPopularGenome;
 
     private Simulation simulation;
 
-    private int initialEnergy, minMutations, maxMutations, mapWidth, mapHeight, plantEnergyRegain, initialAnimalNumber, initialPlantNumber, plantGrowNumber, reproductionReadyEnergy, reproductionUsedEnergy, genomeLength, simulationSpeed;
+    private int initialEnergy, minMutations, maxMutations, mapWidth, mapHeight, plantEnergyRegain, initialAnimalNumber, initialPlantNumber, plantGrowNumber, reproductionReadyEnergy, reproductionUsedEnergy, genomeLength, simulationSpeed, currentAge;
     private String mapVariant, mutationsVariant;
     public void setWorldMap(WorldMap map){
         worldMap = map;
@@ -71,6 +77,8 @@ public class WindowPresenter implements MapChangeListener {
         jungleHighlighted = Boolean.FALSE;
         genomeHighlighted = Boolean.FALSE;
         mostPopularGenome = null;
+        pickedAnimal = null;
+        currentAge = 0;
     }
 
     private void clearGrid() {
@@ -115,9 +123,22 @@ public class WindowPresenter implements MapChangeListener {
                         GridPane.setHalignment(tmpLabel, HPos.CENTER);
                     }
                     else {
-                        tmpLabel = new Label(drawObject(new Vector2d(boundary.leftLower().getX()+j-1, boundary.rightUpper().getY()-i+1)));
+                        Vector2d objectPosition = new Vector2d(boundary.leftLower().getX()+j-1, boundary.rightUpper().getY()-i+1);
+
+                        tmpLabel = new Label(drawObject(objectPosition));
                         mapGrid.add(tmpLabel, j, i, 1, 1);
                         GridPane.setHalignment(tmpLabel, HPos.CENTER);
+
+                        tmpLabel.setOnMouseClicked(event -> {
+                            if (event.getButton() == MouseButton.PRIMARY) {
+                                if(this.worldMap.animalsAt(objectPosition) != null) {
+                                    pickedAnimal = this.worldMap.animalsAt(objectPosition).stream().findFirst().orElse(null);
+                                    checkAnimalStatsStatus();
+                                }
+
+                            }
+                        });
+
                     }
                 }
             }
@@ -143,7 +164,7 @@ public class WindowPresenter implements MapChangeListener {
 
                 int j = rowIndex != null ? rowIndex - 1 : 0;
                 int i = columnIndex != null ? columnIndex - 1 : 0;
-                if ( (i >= 0 && j >= 0) && (mapHeight%2 == 1 && abs(j - (mapHeight - 1) / 2) <= goodDistanceFromEquator) || (mapHeight%2 == 0 && min(abs(j - (mapHeight/ 2)), abs(j - (mapHeight/ 2) + 1)) <= goodDistanceFromEquator))
+                if ( (i >= 0 && j >= 0) && (mapHeight%2 == 1 && abs(j - (mapHeight - 1) / 2) <= 1) || (mapHeight%2 == 0 && min(abs(j - (mapHeight/ 2)), abs(j - (mapHeight/ 2) + 1)) <= goodDistanceFromEquator))
                     child.setStyle("-fx-background-color: green; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
 
             }
@@ -161,14 +182,26 @@ public class WindowPresenter implements MapChangeListener {
             }
         }
 
+        if(pickedAnimal != null) {
+            for(Node child : mapGrid.getChildren()) {
+                Integer rowIndex = GridPane.getRowIndex(child);
+                Integer columnIndex = GridPane.getColumnIndex(child);
+                int j = rowIndex != null ? mapHeight - rowIndex : 0;
+                int i = columnIndex != null ? columnIndex - 1 : 0;
+                if(worldMap.animalsAt(new Vector2d(i, j)) != null && worldMap.animalsAt(new Vector2d(i, j)).contains(pickedAnimal))
+                    if((genomeHighlighted && mostPopularGenome != null) && (worldMap.animalsAt(new Vector2d(i, j)) != null && worldMap.animalsAt(new Vector2d(i, j)).stream().anyMatch(animal -> animal.getGenome().equals(mostPopularGenome)))) {
+                        child.setStyle("-fx-background-color: purple; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
+                    }
+                    else {
+                        child.setStyle("-fx-background-color: blue; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);");
+                    }
+            }
+        }
     }
 
     @Override
     public void mapChanged(WorldMap worldMap, String debugMessage) {
-        Platform.runLater(() -> {
-            drawMap();
-//            moveLabel.setText(debugMessage); debug
-        });
+        Platform.runLater(this::drawMap);
     }
     public void runSimulation() {
         WorldMap map;
@@ -183,7 +216,7 @@ public class WindowPresenter implements MapChangeListener {
         map.registerObserver(this);
 
 
-        simulation = new Simulation(map, minMutations, maxMutations, plantEnergyRegain, initialAnimalNumber, initialPlantNumber, plantGrowNumber, reproductionReadyEnergy, reproductionUsedEnergy, genomeLength, initialEnergy, mutationsVariant.equals("A little bit of chaos"), simulationSpeed, statsLoggingEnabled);
+        simulation = new Simulation(map, minMutations, maxMutations, plantEnergyRegain, initialAnimalNumber, plantGrowNumber, reproductionReadyEnergy, reproductionUsedEnergy, genomeLength, initialEnergy, mutationsVariant.equals("A little bit of chaos"), simulationSpeed, statsLoggingEnabled);
         SimulationEngine simulationEngine = new SimulationEngine(List.of(simulation));
         try {
             simulationEngine.runAsync();
@@ -193,8 +226,10 @@ public class WindowPresenter implements MapChangeListener {
     }
 
     public void statsChanged(MapStats stats) {
+        currentAge = stats.getCurrentDay();
         mostPopularGenome = stats.getAnimals() == 0 ? null : stats.getMostPopularGenome();
         Platform.runLater(() -> {
+            ageLabel.setText(String.valueOf(stats.getCurrentDay()));
             totalAnimalsLabel.setText(String.valueOf(stats.getAnimals()));
             totalPlantsLabel.setText(String.valueOf(stats.getPlants()));
             emptyFieldsLabel.setText(String.valueOf(stats.getEmptyFields()));
@@ -202,6 +237,40 @@ public class WindowPresenter implements MapChangeListener {
             averageEnergyLabel.setText(String.format("%.2f", stats.getAverageEnergy()));
             averageLifespanLabel.setText(String.format("%.2f", stats.getAverageLifespan()));
             averageChildrenLabel.setText(String.format("%.2f", stats.getAverageChildren()));
+        });
+
+        checkAnimalStatsStatus();
+    }
+
+    public void checkAnimalStatsStatus() {
+        if (pickedAnimal != null) {
+            Visitor animalVisitor = new AnimalVisitor();
+            pickedAnimal.accept(animalVisitor);
+            AnimalStats animalStats = (AnimalStats) animalVisitor.getStats();
+            animalStatsChanged(animalStats);
+        }
+    }
+    public void animalStatsChanged(AnimalStats animStats) {
+        Platform.runLater(() -> {
+            if(pickedAnimal != null) {
+                animPosLabel.setText(pickedAnimal.getPosition().toString());
+                animGenLabel.setText(animStats.getAnimalGenome().toString() + " (" + animStats.getActiveGene() + ")");
+                animEnergyLabel.setText(String.valueOf(animStats.getEnergy()));
+                animPlantsLabel.setText(String.valueOf(animStats.getPlantsEaten()));
+                animChildrenLabel.setText(String.valueOf(animStats.getChildren()));
+                animDescLabel.setText(String.valueOf(animStats.getDescendants()));
+                animLifeSpanLabel.setText(String.valueOf(min(animStats.getDayDiedIn() == -1 ? currentAge : animStats.getDayDiedIn(), currentAge) - animStats.getDayBornIn()));
+                animDiedInLabel.setText(animStats.getDayDiedIn() == -1 ? "Still Alive" : String.valueOf(animStats.getDayDiedIn()));
+            } else {
+                animPosLabel.setText("");
+                animGenLabel.setText("");
+                animEnergyLabel.setText("");
+                animPlantsLabel.setText("");
+                animChildrenLabel.setText("");
+                animDescLabel.setText("");
+                animLifeSpanLabel.setText("");
+                animDiedInLabel.setText("");
+            }
         });
     }
 
@@ -231,6 +300,11 @@ public class WindowPresenter implements MapChangeListener {
             genomeButton.setText("Show Dominating Genome");
         }
         mapChanged(worldMap, "Genome Button Clicked");
+    }
+
+    public void onAnimalPickButtonButtonClicked() {
+        pickedAnimal = null;
+        animalStatsChanged(null);
     }
 
 

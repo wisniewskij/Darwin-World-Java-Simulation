@@ -8,19 +8,23 @@ import agh.ics.oop.model.util.MapVisualizer;
 import agh.ics.oop.model.util.Boundary;
 import agh.ics.oop.model.util.RandomGrassPositionGenerator;
 import agh.ics.oop.model.util.directions.Vector2d;
+
 import java.util.*;
+import java.util.stream.Stream;
+
+import static java.util.function.Predicate.not;
 
 abstract public class AbstractWorldMap implements WorldMap, Visitable {
     protected final int mapHeight, mapWidth;
-    public Map<Vector2d, Grass> grasses = new HashMap<>();
-    public Map<Vector2d, TreeSet<Animal>> animals = new HashMap<>();
-    public HashSet<MapChangeListener> observers = new HashSet<>();
+    private final Map<Vector2d, Grass> grasses = new HashMap<>();
+    private final Map<Vector2d, HashSet<Animal>> animals = new HashMap<>();
+    private final Set<MapChangeListener> observers = new HashSet<>();
     private final UUID mapId;
     private int updateCounter;
 
     public AbstractWorldMap(int initialGrassesNumber, int mapHeight, int mapWidth) {
-        mapId = UUID.randomUUID();
-        updateCounter = 0;
+        this.mapId = UUID.randomUUID();
+        this.updateCounter = 0;
         this.mapHeight = mapHeight;
         this.mapWidth = mapWidth;
         spawnNewGrasses(initialGrassesNumber);
@@ -33,6 +37,7 @@ abstract public class AbstractWorldMap implements WorldMap, Visitable {
     public int getUpdateCounter() {
         return updateCounter;
     }
+
     public void incrementUpdateCounter() {
         updateCounter++;
     }
@@ -51,9 +56,9 @@ abstract public class AbstractWorldMap implements WorldMap, Visitable {
     }
 
     public void statsChanged(MapStats stats) {
-        for (MapChangeListener listener : observers)
-            listener.statsChanged(stats);
+        observers.forEach(listener -> listener.statsChanged(stats));
     }
+
     public void spawnNewGrasses(int n) {
         RandomGrassPositionGenerator randomGrassPositionGenerator = new RandomGrassPositionGenerator(mapHeight, mapWidth, grasses);
         for(Vector2d grassPosition : randomGrassPositionGenerator) {
@@ -66,7 +71,7 @@ abstract public class AbstractWorldMap implements WorldMap, Visitable {
         return mapWidth * mapHeight;
     }
 
-    public TreeSet<Animal> animalsAt(Vector2d position) {
+    public HashSet<Animal> animalsAt(Vector2d position) {
         return animals.get(position);
     }
 
@@ -82,21 +87,15 @@ abstract public class AbstractWorldMap implements WorldMap, Visitable {
         return mapId;
     }
 
-    void placeAnimalAt(Animal animal, Vector2d position) {
-        if (animals.containsKey(position)) {
-            animals.get(position).add(animal);
-        } else {
-            animals.put(position, new TreeSet<>(Comparator.comparingInt(Animal::getEnergy).reversed().thenComparing(Animal::getBornIn).thenComparing(Animal::getNoCildren).thenComparing(Animal::getUniqueId)));
-            animals.get(position).add(animal);
-        }
+    private void placeAnimalAt(Animal animal, Vector2d position) {
+        animals.computeIfAbsent(position, k -> new HashSet<>()).add(animal);
     }
 
-    void takeAnimalFrom(Animal animal, Vector2d oldPosition) {
-        if (animals.containsKey(oldPosition)) {
-            animals.get(oldPosition).remove(animal);
-            if (animals.get(oldPosition).isEmpty())
-                animals.remove(oldPosition);
-        } else mapChanged(oldPosition.toString());
+    private void takeAnimalFrom(Animal animal, Vector2d oldPosition) {
+        animals.computeIfPresent(oldPosition, (pos, animalSet) -> {
+            animalSet.remove(animal);
+            return animalSet.isEmpty() ? null : animalSet;
+        });
     }
 
     public boolean isOccupied(Vector2d position) {
@@ -108,8 +107,8 @@ abstract public class AbstractWorldMap implements WorldMap, Visitable {
         if (animal.move(this)) {
             takeAnimalFrom(animal, oldPosition);
             placeAnimalAt(animal, animal.getPosition());
-            mapChanged("%s -> %s".formatted(oldPosition, animal.getPosition()));
         }
+        mapChanged("%s -> %s".formatted(oldPosition, animal.getPosition()));
     }
 
     public void placeNewAnimal(Animal animal) {
@@ -118,29 +117,29 @@ abstract public class AbstractWorldMap implements WorldMap, Visitable {
     }
 
     public void killAnimal(Animal animal) {
-        mapChanged("died at %s".formatted(animal.getPosition()));
         takeAnimalFrom(animal, animal.getPosition());
+        mapChanged("died at %s".formatted(animal.getPosition()));
     }
 
     public void killGrass(Grass grass) {
-        mapChanged("eaten at %s".formatted(grass.getPosition()));
         grasses.remove(grass.getPosition());
+        mapChanged("eaten at %s".formatted(grass.getPosition()));
     }
 
     @Override
     public List<Animal> getAnimals() {
-        ArrayList<Animal> allAnimals = new ArrayList<>();
-        for (TreeSet<Animal> animalSet : animals.values()) {
-            allAnimals.addAll(animalSet);
-        }
-        return allAnimals;
+        return animals.values().stream()
+                .flatMap(Set::stream)
+                .toList();
     }
 
-    @Override
-    public WorldElement objectAt(Vector2d key) {
-        TreeSet<Animal> animalTreeSet = animalsAt(key);
-        if(animalTreeSet != null && !animalTreeSet.isEmpty()) return animalTreeSet.first();
-        return grassAt(key);
+    public WorldElement objectAt(Vector2d position) {
+        WorldElement val = Optional.ofNullable(animalsAt(position))
+                .filter(not(Set::isEmpty))
+                .map(Set::stream)
+                .flatMap(Stream::findFirst)
+                .orElse(null);
+        return val == null ? grassAt(position) : val;
     }
 
     @Override
@@ -155,9 +154,7 @@ abstract public class AbstractWorldMap implements WorldMap, Visitable {
 
     @Override
     public Boundary getCurrentBounds() {
-        Vector2d upper = new Vector2d(mapWidth - 1, mapHeight - 1);
-        Vector2d lower = new Vector2d(0, 0);
-        return new Boundary(lower, upper);
+        return new Boundary(new Vector2d(0, 0), new Vector2d(mapWidth - 1, mapHeight - 1));
     }
 
     public List<WorldElement> getElements() {

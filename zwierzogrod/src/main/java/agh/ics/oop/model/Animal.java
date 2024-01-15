@@ -8,10 +8,9 @@ import agh.ics.oop.model.util.directions.Vector2d;
 import java.util.*;
 
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 public class Animal implements WorldElement, Visitable {
-    private int reproductionUsedEnergy, MIN_MUTATIONS, MAX_MUTATIONS;
+    private int reproductionUsedEnergy;
     private MapDirection animalDirection;
     private Vector2d animalPosition;
     private int animalEnergy;
@@ -19,14 +18,12 @@ public class Animal implements WorldElement, Visitable {
     private final int bornIn;
     private int diedIn = -1;
     private int timesEnergyAdded=0;
-    private List<Animal> children = new ArrayList<>();
-    private int uniqueID;
+    private final List<Animal> children = new ArrayList<>();
+    private final int uniqueID;
     private static int lastID = 0;
 
-    public void setArgs(int minMutations, int maxMutations, int reproductionUsedEnergy) {
+    public void setArgs(int reproductionUsedEnergy) {
         this.reproductionUsedEnergy = reproductionUsedEnergy;
-        this.MIN_MUTATIONS = minMutations;
-        this.MAX_MUTATIONS = maxMutations;
     }
     public Animal(Vector2d position, int energy, AnimalGenome animalGenome, int bornIn) {
         uniqueID = lastID++;
@@ -57,7 +54,7 @@ public class Animal implements WorldElement, Visitable {
     public void addChild(Animal animal) {
         children.add(animal);
     }
-    public int getNoCildren() {
+    public int getNumberOfChildren() {
         return children.size();
     }
 
@@ -65,11 +62,11 @@ public class Animal implements WorldElement, Visitable {
         return timesEnergyAdded;
     }
 
-    public int getBornIn() {
+    public int getDayBornIn() {
         return bornIn;
     }
 
-    public int getDiedIn() {
+    public int getDayDiedIn() {
         return diedIn;
     }
 
@@ -106,6 +103,7 @@ public class Animal implements WorldElement, Visitable {
         animalEnergy--;
         animalDirection = animalGenome.nextDirection(animalDirection);
         Vector2d nextAnimalPosition = animalPosition.add(animalDirection.toUnitVector());
+
         if(moveValidator.canMoveTo(nextAnimalPosition)) {
             Vector2d newPosition = moveValidator.convertNextPosition(nextAnimalPosition);
             if(! nextAnimalPosition.equals(newPosition)) {
@@ -115,8 +113,8 @@ public class Animal implements WorldElement, Visitable {
             return true;
         } else {
             animalDirection = animalDirection.flip();
+            return false;
         }
-        return false;
     }
     public Animal copulate(Animal other, int parentEnergyUsed, int birthDate) {
         Animal child = new Animal(this.getPosition(), parentEnergyUsed * 2, getGenome().newAnimalGenomeFromReproduction(this, other), birthDate);
@@ -132,7 +130,7 @@ public class Animal implements WorldElement, Visitable {
         visitor.visit(this);
     }
 
-    public int getDescendantNo() {
+    public int getNumberOfDescendants() {
         HashSet<Animal> descendants = new HashSet<>();
         descendants.add(this);
         Queue<Animal> Q = new LinkedList<>();
@@ -140,8 +138,7 @@ public class Animal implements WorldElement, Visitable {
         while(! Q.isEmpty()) {
             Animal currAnimal = Q.poll();
             for(Animal child : currAnimal.children)
-                if(! descendants.contains(child)) {
-                    descendants.add(currAnimal);
+                if (descendants.add(child)) {
                     Q.offer(child);
                 }
         }

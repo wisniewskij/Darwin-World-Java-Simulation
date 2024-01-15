@@ -6,10 +6,6 @@ public class HellPortal extends AbstractWorldMap implements WorldMap {
         super(grass, mapHeight, mapWidth);
     }
 
-    public HellPortal() {
-        super();
-    }
-
     @Override
     public boolean canMoveTo(Vector2d position) {
         return true;

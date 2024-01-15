@@ -10,14 +10,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class MapStats {
+public class MapStats implements Stats {
     private int animals, plants, emptyFields, mostPopularGenomeNo;
+    private final int currentDay;
     private double averageEnergy, averageLifespan, averageChildren;
     private AnimalGenome mostPopularGenome;
 
     public MapStats(int animals, int plants, int emptyFields,
                     double averageEnergy, double averageLifespan,
-                    double averageChildren, AnimalGenome mostPopularGenome, int mostPopularGenomeNo) {
+                    double averageChildren, AnimalGenome mostPopularGenome, int mostPopularGenomeNo, int currentDay) {
         this.animals = animals;
         this.plants = plants;
         this.emptyFields = emptyFields;
@@ -26,43 +27,16 @@ public class MapStats {
         this.averageChildren = averageChildren;
         this.mostPopularGenome = mostPopularGenome;
         this.mostPopularGenomeNo = mostPopularGenomeNo;
+        this.currentDay = currentDay;
     }
 
-    // Setters
-    public void setAnimals(int animals) {
-        this.animals = animals;
-    }
-    public void setMostPopularGenomeNo(int mostPopularGenomeNo) {
-        this.mostPopularGenomeNo = mostPopularGenomeNo;
-    }
-
-    public void setPlants(int plants) {
-        this.plants = plants;
-    }
-
-    public void setEmptyFields(int emptyFields) {
-        this.emptyFields = emptyFields;
-    }
-
-    public void setAverageEnergy(double averageEnergy) {
-        this.averageEnergy = averageEnergy;
-    }
-
-    public void setAverageLifespan(double averageLifespan) {
-        this.averageLifespan = averageLifespan;
-    }
-
-    public void setAverageChildren(double averageChildren) {
-        this.averageChildren = averageChildren;
-    }
-
-    public void setMostPopularGenome(AnimalGenome mostPopularGenome) {
-        this.mostPopularGenome = mostPopularGenome;
-    }
 
     // Getters
     public int getAnimals() {
         return animals;
+    }
+    public int getCurrentDay() {
+        return currentDay;
     }
     public int getMostPopularGenomeNo() {
         return mostPopularGenomeNo;
@@ -94,15 +68,14 @@ public class MapStats {
 
     // CSV
     public static void writeHeaderToCSV(String filePath) {
-        // Check if the file is empty or doesn't exist, then write the header
         if (isFileEmpty(filePath)) {
             String header = "Age,Animals,Plants,EmptyFields,AverageEnergy,AverageLifespan,AverageChildren,MostPopularGenome";
             appendToFile(filePath, header);
         }
     }
 
-    public void logStatsToCSV(String filePath, int dayNumber) {
-        String data = formatAsCSV(dayNumber);
+    public void logStatsToCSV(String filePath) {
+        String data = formatAsCSV();
         appendToFile(filePath, data);
     }
 
@@ -116,10 +89,17 @@ public class MapStats {
         }
     }
 
-    private String formatAsCSV(int dayNumber) {
-        return dayNumber + "," + animals + "," + plants + "," + emptyFields + "," +
-                averageEnergy + "," + averageLifespan + "," + averageChildren + "," +
-                (mostPopularGenome != null ? mostPopularGenome.toString() + " " + mostPopularGenomeNo : "N/A");
+    private String formatAsCSV() {
+        return String.join(",",
+                String.valueOf(currentDay),
+                String.valueOf(animals),
+                String.valueOf(plants),
+                String.valueOf(emptyFields),
+                String.valueOf(averageEnergy),
+                String.valueOf(averageLifespan),
+                String.valueOf(averageChildren),
+                mostPopularGenome != null ? mostPopularGenome + " " + mostPopularGenomeNo : "N/A"
+        );
     }
 
     private static void appendToFile(String filePath, String data) {
