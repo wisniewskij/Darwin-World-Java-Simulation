@@ -37,7 +37,7 @@ public class SimulationPresenter {
         mutationChoiceBox.setValue("Normal");
     }
 
-    private static int parseIntOrDefault(TextField textField, int defaultValue) {
+    public static int parseIntOrDefault(TextField textField, int defaultValue) {
         try {
             return Integer.parseInt(textField.getText());
         } catch (NumberFormatException e) {
@@ -45,7 +45,7 @@ public class SimulationPresenter {
         }
     }
 
-    private static String assureInRangeAndToString(int val, int lower, int upper) {
+    public static String assureInRangeAndToString(int val, int lower, int upper) {
         return String.valueOf(min(max(val, lower), upper));
     }
 
