@@ -9,6 +9,7 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import java.lang.String?>
 <?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.CheckBox?>
 <BorderPane xmlns="http://javafx.com/javafx "
             xmlns:fx="http://javafx.com/fxml"
             minHeight="200.0" minWidth="200.0"
@@ -16,11 +17,9 @@
     <top>
         <HBox spacing="10" alignment="CENTER">
             <VBox spacing="10" alignment="CENTER">
-                <TextField fx:id="argInput" promptText="Enter arguments"/>
                 <VBox spacing="5" alignment="CENTER">
                     <Label text="Map type" />
                     <ChoiceBox fx:id="mapChoiceBox" prefWidth="200">
-                        <!-- Items to be displayed in the ChoiceBox -->
                         <items>
                             <FXCollections fx:factory="observableArrayList">
                                 <String fx:value="Earth" />
@@ -80,7 +79,6 @@
                 <VBox spacing="5" alignment="CENTER">
                     <Label text="Mutations variant" />
                     <ChoiceBox fx:id="mutationChoiceBox" prefWidth="200">
-                        <!-- Items to be displayed in the ChoiceBox -->
                         <items>
                             <FXCollections fx:factory="observableArrayList">
                                 <String fx:value="Normal" />
@@ -94,6 +92,14 @@
                     <Label text="Genome length" />
                     <TextField fx:id="genomeTextField" text="10" />
                 </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Simulation age interval (ms)" />
+                    <TextField fx:id="speedTextField" text="300" />
+                </VBox>
+                <VBox spacing="5" alignment="CENTER">
+                    <Label text="Write stats to CSV?" />
+                    <CheckBox fx:id="statsCheckBox"/>
+                </VBox>
             </VBox>
         </HBox>
     </top>
@@ -102,6 +108,8 @@
     <bottom>
         <HBox alignment="CENTER">
             <Button onAction="#onSimulationStartClicked" text="Start"/>
+            <Button onAction="#onLoadClicked" text="Load configuration"/>
+            <Button onAction="#onSaveClicked" text="Save configuration"/>
         </HBox>
     </bottom>
 </BorderPane>

@@ -8,9 +8,6 @@ public class Grass implements WorldElement {
     public Grass(Vector2d position) {
         this.position = position;
     }
-    public Grass() {
-        this(new Vector2d(0, 0));
-    }
     @Override
     public Vector2d getPosition() {
         return position;
@@ -19,7 +16,6 @@ public class Grass implements WorldElement {
     public String toString() {
         return "*";
     }
-
     @Override
     public boolean move(MoveValidator validator) {
         return false;

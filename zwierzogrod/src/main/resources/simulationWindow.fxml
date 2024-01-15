@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.GridPane?>
@@ -12,12 +11,83 @@
             minHeight="550.0" minWidth="850.0"
             fx:controller="agh.ics.oop.presenter.WindowPresenter">
     <top>
-        <Label fx:id="moveLabel" text="Moves will be displayed here!"/>
+        <HBox spacing="10">
+            <Label text="Map ID:  "/>
+            <Label fx:id="mapIDLabel"/>
+
+            <Label text="Current Age:  "/>
+            <Label fx:id="ageLabel"/>
+        </HBox>
+
+<!--        <Label fx:id="moveLabel" text="debug moves will be displayed here!" BorderPane.alignment="CENTER"/>-->
     </top>
     <center>
-        <GridPane fx:id="mapGrid" alignment="center" gridLinesVisible="true">
-        </GridPane>
+        <VBox>
+            <HBox>
+                <VBox HBox.hgrow="ALWAYS">
+                    <GridPane fx:id="mapGrid" alignment="center" gridLinesVisible="true">
+                    </GridPane>
+                </VBox>
+                <VBox HBox.hgrow="NEVER">
+                    <VBox>
+                        <Label text="Total Number of Animals:"/>
+                        <Label fx:id="totalAnimalsLabel"/>
+
+                        <Label text="Total Number of Plants:"/>
+                        <Label fx:id="totalPlantsLabel"/>
+
+                        <Label text="Number of Empty Fields:"/>
+                        <Label fx:id="emptyFieldsLabel"/>
+
+                        <Label text="Most Popular Genomes:"/>
+                        <Label fx:id="mostPopularGenomeLabel"/>
+
+                        <Label text="Average Energy of Living Animals:"/>
+                        <Label fx:id="averageEnergyLabel"/>
+
+                        <Label text="Average Lifespan of Dead Animals:"/>
+                        <Label fx:id="averageLifespanLabel"/>
+
+                        <Label text="Average Number of Children for Living Animals:"/>
+                        <Label fx:id="averageChildrenLabel"/>
+                    </VBox>
+                </VBox>
+            </HBox>
+            <HBox>
+                <VBox>
+                    <Label text="Animal Position:"/>
+                    <Label fx:id="animPosLabel"/>
+
+                    <Label text="Genome:"/>
+                    <Label fx:id="animGenLabel"/>
+
+                    <Label text="Energy:"/>
+                    <Label fx:id="animEnergyLabel"/>
+
+                    <Label text="Plants eaten:"/>
+                    <Label fx:id="animPlantsLabel"/>
+
+                    <Label text="Descendants:"/>
+                    <Label fx:id="animDescLabel"/>
+
+                    <Label text="Children:"/>
+                    <Label fx:id="animChildrenLabel"/>
+
+                    <Label text="Lifespan:"/>
+                    <Label fx:id="animLifeSpanLabel"/>
+
+                    <Label text="Death day:"/>
+                    <Label fx:id="animDiedInLabel"/>
+                </VBox>
+            </HBox>
+        </VBox>
     </center>
     <bottom>
+        <HBox alignment="CENTER">
+            <Button fx:id="pauseButton" onAction="#onPauseClicked" text="Pause"/>
+            <Button fx:id="jungleButton" onAction="#onJungleButtonClicked" text="Show Jungle"/>
+            <Button fx:id="genomeButton" onAction="#onGenomeButtonClicked" text="Show Dominating Genome Location"/>
+            <Button onAction="#onAnimalPickButtonButtonClicked" text="Reset picked animal"/>
+        </HBox>
     </bottom>
 </BorderPane>
